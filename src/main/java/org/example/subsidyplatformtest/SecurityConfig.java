@@ -14,23 +14,38 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // Hashes passwords securely in the DB
+        return new BCryptPasswordEncoder();
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
         http
-                .csrf(csrf -> csrf.disable()) // Disabled for local Postman/Form testing convenience
+                .csrf(csrf -> csrf.disable())
+
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/register", "/login", "/api/users/register").permitAll() // Public pages
-                        .anyRequest().authenticated() // Everything else (like dashboard) requires login
+                        .requestMatchers(
+                                "/",
+                                "/register",
+                                "/login",
+                                "/api/users/register",
+                                "/api/eligibility/**",
+                                "/api/beneficiary/**"
+                        ).permitAll()
+
+                        .anyRequest().authenticated()
                 )
+
                 .formLogin(form -> form
-                        .loginPage("/login") // Custom login page
-                        .defaultSuccessUrl("/dashboard", true) // Redirect here after login
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/dashboard", true)
                         .permitAll()
                 )
-                .logout(logout -> logout.logoutSuccessUrl("/login").permitAll());
+
+                .logout(logout -> logout
+                        .logoutSuccessUrl("/login")
+                        .permitAll()
+                );
 
         return http.build();
     }
