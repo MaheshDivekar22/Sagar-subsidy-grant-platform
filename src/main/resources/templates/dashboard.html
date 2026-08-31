@@ -1,24 +1,407 @@
 <!DOCTYPE html>
 <html xmlns:th="http://thymeleaf.org">
-<head><title>User Dashboard</title></head>
-<body style="font-family: Arial; margin: 50px;">
-<h2>Welcome to your Subsidy Dashboard!</h2>
-<p>Logged in User Account context: <strong th:text="${user.email}"></strong></p>
-<hr>
-<h3>Your Registration Details:</h3>
-<table border="1" cellpadding="10">
-    <tr><th>Field</th><th>Stored Profile Value</th></tr>
-    <tr><td>User Database Registry ID</td><td th:text="${user.id}"></td></tr>
-    <tr><td>Government Identification Token</td><td th:text="${user.governmentId}"></td></tr>
-    <tr><td>Primary Mobile Line</td><td th:text="${user.contactNumber}"></td></tr>
-    <tr><td>Age Metric</td><td th:text="${user.age}"></td></tr>
-    <tr><td>Residential Location Address</td><td th:text="${user.address}"></td></tr>
-    <tr><td>Enrolled Subsidy Allocation Scheme</td><td th:text="${user.schemeName}"></td></tr>
-    <tr><td>Password Status Key</td><td>🔒 Encrypted with BCrypt Hashing Algorithm</td></tr>
-</table>
-<br>
-<form th:action="@{/logout}" method="post">
-    <button type="submit">Logout Safely</button>
-</form>
+
+<head>
+    <title>User Dashboard</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        h3 {
+            margin-top: 25px;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f0f0f0;
+        }
+
+        .eligibility-box {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #fafafa;
+        }
+
+        .check-button {
+            background-color: #0275d8;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .check-button:hover {
+            background-color: #025aa5;
+        }
+
+        .passed {
+            color: green;
+            font-weight: bold;
+        }
+
+        .failed {
+            color: red;
+            font-weight: bold;
+        }
+
+        .eligible {
+            color: green;
+            font-size: 22px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .not-eligible {
+            color: red;
+            font-size: 22px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        #eligibilityResult {
+            margin-top: 20px;
+        }
+
+        .logout-button {
+            margin-top: 20px;
+            padding: 8px 15px;
+            cursor: pointer;
+        }
+
+        .info {
+            color: #555;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2>Welcome to your Subsidy Dashboard!</h2>
+
+    <p>
+        Logged in User Account:
+        <strong th:text="${user.email}"></strong>
+    </p>
+
+    <hr>
+
+    <!-- USER DETAILS -->
+
+    <h3>Your Registration Details:</h3>
+
+    <table>
+
+        <tr>
+            <th>Field</th>
+            <th>Stored Profile Value</th>
+        </tr>
+
+        <tr>
+            <td>User Database Registry ID</td>
+            <td th:text="${user.id}"></td>
+        </tr>
+
+        <tr>
+            <td>Government Identification Token</td>
+            <td th:text="${user.governmentId}"></td>
+        </tr>
+
+        <tr>
+            <td>Primary Mobile Line</td>
+            <td th:text="${user.contactNumber}"></td>
+        </tr>
+
+        <tr>
+            <td>Age</td>
+            <td th:text="${user.age}"></td>
+        </tr>
+
+        <tr>
+            <td>Annual Income</td>
+            <td th:text="${user.income}"></td>
+        </tr>
+
+        <tr>
+            <td>Occupation</td>
+            <td th:text="${user.occupation}"></td>
+        </tr>
+
+        <tr>
+            <td>Residential Location Address</td>
+            <td th:text="${user.address}"></td>
+        </tr>
+
+        <tr>
+            <td>Enrolled Subsidy Scheme</td>
+            <td th:text="${user.schemeName}"></td>
+        </tr>
+
+        <tr>
+            <td>Password Status</td>
+            <td>🔒 Encrypted with BCrypt Hashing Algorithm</td>
+        </tr>
+
+    </table>
+
+
+    <!-- ELIGIBILITY CHECK -->
+
+    <div class="eligibility-box">
+
+        <h3>Eligibility Criteria Check</h3>
+
+        <p class="info">
+            Click the button below to check whether you satisfy
+            the required subsidy eligibility criteria.
+        </p>
+
+        <button class="check-button"
+                onclick="checkEligibility()">
+            Check Eligibility
+        </button>
+
+        <div id="eligibilityResult"></div>
+
+    </div>
+
+
+    <!-- LOGOUT -->
+
+    <form th:action="@{/logout}" method="post">
+
+        <button type="submit" class="logout-button">
+            Logout Safely
+        </button>
+
+    </form>
+
+</div>
+
+
+<script th:inline="javascript">
+
+    // Get the logged-in user's ID from Thymeleaf
+    const userId = /*[[${user.id}]]*/ 0;
+
+
+    function checkEligibility() {
+
+        const resultDiv =
+            document.getElementById("eligibilityResult");
+
+        resultDiv.innerHTML =
+            "<p>Checking eligibility...</p>";
+
+
+        // Call the backend eligibility API
+        fetch("/api/eligibility/" + userId)
+
+            .then(response => {
+
+                if (!response.ok) {
+                    throw new Error(
+                        "Unable to check eligibility"
+                    );
+                }
+
+                return response.json();
+            })
+
+
+            .then(data => {
+
+                let html =
+                    "<h3>Eligibility Criteria</h3>";
+
+                html += "<table>";
+
+                html +=
+                    "<tr>" +
+                    "<th>Eligibility Criterion</th>" +
+                    "<th>Result</th>" +
+                    "</tr>";
+
+
+                // AGE
+                html += "<tr>";
+
+                html +=
+                    "<td>Age (18 or above)</td>";
+
+                html +=
+                    "<td class='" +
+                    (data.criteria.age === "PASSED"
+                        ? "passed"
+                        : "failed") +
+                    "'>" +
+                    (data.criteria.age === "PASSED"
+                        ? "✅ PASSED"
+                        : "❌ FAILED") +
+                    "</td>";
+
+                html += "</tr>";
+
+
+                // GOVERNMENT ID
+                html += "<tr>";
+
+                html +=
+                    "<td>Government ID</td>";
+
+                html +=
+                    "<td class='" +
+                    (data.criteria.governmentId === "PASSED"
+                        ? "passed"
+                        : "failed") +
+                    "'>" +
+                    (data.criteria.governmentId === "PASSED"
+                        ? "✅ PASSED"
+                        : "❌ FAILED") +
+                    "</td>";
+
+                html += "</tr>";
+
+
+                // SUBSIDY SCHEME
+                html += "<tr>";
+
+                html +=
+                    "<td>Subsidy Scheme Selected</td>";
+
+                html +=
+                    "<td class='" +
+                    (data.criteria.schemeName === "PASSED"
+                        ? "passed"
+                        : "failed") +
+                    "'>" +
+                    (data.criteria.schemeName === "PASSED"
+                        ? "✅ PASSED"
+                        : "❌ FAILED") +
+                    "</td>";
+
+                html += "</tr>";
+
+
+                // INCOME
+                html += "<tr>";
+
+                html +=
+                    "<td>Annual Income (≤ ₹5,00,000)</td>";
+
+                html +=
+                    "<td class='" +
+                    (data.criteria.income === "PASSED"
+                        ? "passed"
+                        : "failed") +
+                    "'>" +
+                    (data.criteria.income === "PASSED"
+                        ? "✅ PASSED"
+                        : "❌ FAILED") +
+                    "</td>";
+
+                html += "</tr>";
+
+
+                // OCCUPATION
+                html += "<tr>";
+
+                html +=
+                    "<td>Occupation Provided</td>";
+
+                html +=
+                    "<td class='" +
+                    (data.criteria.occupation === "PASSED"
+                        ? "passed"
+                        : "failed") +
+                    "'>" +
+                    (data.criteria.occupation === "PASSED"
+                        ? "✅ PASSED"
+                        : "❌ FAILED") +
+                    "</td>";
+
+                html += "</tr>";
+
+
+                html += "</table>";
+
+
+                // OVERALL RESULT
+                if (data.eligible) {
+
+                    html +=
+                        "<p class='eligible'>" +
+                        "ELIGIBLE ✅" +
+                        "</p>";
+
+                } else {
+
+                    html +=
+                        "<p class='not-eligible'>" +
+                        "NOT ELIGIBLE ❌" +
+                        "</p>";
+                }
+
+
+                // MESSAGE
+                html +=
+                    "<p>" +
+                    data.message +
+                    "</p>";
+
+
+                resultDiv.innerHTML = html;
+
+            })
+
+
+            .catch(error => {
+
+                resultDiv.innerHTML =
+                    "<p class='failed'>" +
+                    "❌ Error checking eligibility" +
+                    "</p>";
+
+                console.error(error);
+
+            });
+    }
+
+</script>
+
 </body>
 </html>

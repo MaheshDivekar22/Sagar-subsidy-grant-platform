@@ -2,6 +2,9 @@ package org.example.subsidyplatformtest;
 
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 @Service
 public class EligibilityService {
 
@@ -16,25 +19,43 @@ public class EligibilityService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        boolean eligible =
-                user.getAge() >= 18 &&
-                        user.getGovernmentId() != null &&
-                        !user.getGovernmentId().isEmpty() &&
-                        user.getSchemeName() != null &&
-                        !user.getSchemeName().isEmpty();
+        Map<String, String> criteria = new LinkedHashMap<>();
 
-        if (eligible) {
-            return new Eligibility(
-                    user.getId(),
-                    true,
-                    "User is eligible for verification"
-            );
-        }
+        boolean agePassed = user.getAge() >= 18;
+
+        boolean idPassed = user.getGovernmentId() != null
+                && !user.getGovernmentId().isEmpty();
+
+        boolean schemePassed = user.getSchemeName() != null
+                && !user.getSchemeName().isEmpty();
+
+        boolean incomePassed = user.getIncome() <= 500000;
+
+        boolean occupationPassed = user.getOccupation() != null
+                && !user.getOccupation().isEmpty();
+
+        criteria.put("age", agePassed ? "PASSED" : "FAILED");
+        criteria.put("governmentId", idPassed ? "PASSED" : "FAILED");
+        criteria.put("schemeName", schemePassed ? "PASSED" : "FAILED");
+        criteria.put("income", incomePassed ? "PASSED" : "FAILED");
+        criteria.put("occupation", occupationPassed ? "PASSED" : "FAILED");
+
+        boolean eligible =
+                agePassed &&
+                        idPassed &&
+                        schemePassed &&
+                        incomePassed &&
+                        occupationPassed;
+
+        String message = eligible
+                ? "All eligibility criteria passed"
+                : "Eligibility criteria not satisfied";
 
         return new Eligibility(
                 user.getId(),
-                false,
-                "User is not eligible"
+                eligible,
+                criteria,
+                message
         );
     }
 }

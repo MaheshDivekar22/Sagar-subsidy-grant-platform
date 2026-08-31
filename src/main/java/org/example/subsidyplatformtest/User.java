@@ -49,4 +49,10 @@ public class User {
 
     @NotBlank(message = "Please select a specific subsidy scheme")
     private String schemeName;
+
+    @Min(value = 0, message = "Income cannot be negative")
+    private double income;
+
+    @NotBlank(message = "Occupation is required")
+    private String occupation;
 }
