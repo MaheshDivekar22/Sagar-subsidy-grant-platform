@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <title>Eligibility Result</title>
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f7fa;
+            margin: 40px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
+
+        .box {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            color: #1f4e79;
+        }
+
+        .pass {
+            color: green;
+            font-weight: bold;
+        }
+
+        .fail {
+            color: red;
+            font-weight: bold;
+        }
+
+        .eligible {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .not-eligible {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        li {
+            margin: 10px 0;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #0275d8;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="box">
+
+        <h2>Eligibility Check</h2>
+
+        <h3 th:text="${scheme.schemeName}">
+            Scheme Name
+        </h3>
+
+        <p>
+            Beneficiary:
+            <strong th:text="${user.email}"></strong>
+        </p>
+
+    </div>
+
+
+    <div class="box">
+
+        <h3>Eligibility Criteria Results</h3>
+
+        <!-- PASSED CRITERIA -->
+
+        <h4 class="pass">✓ Passed Criteria</h4>
+
+        <ul>
+
+            <li th:each="criteria : ${result.passedCriteria}"
+                class="pass"
+                th:text="${criteria}">
+            </li>
+
+        </ul>
+
+
+        <!-- FAILED CRITERIA -->
+
+        <h4 class="fail">✗ Failed Criteria</h4>
+
+        <ul>
+
+            <li th:each="criteria : ${result.failedCriteria}"
+                class="fail"
+                th:text="${criteria}">
+            </li>
+
+        </ul>
+
+    </div>
+
+
+    <!-- FINAL RESULT -->
+
+    <div th:if="${result.eligible}"
+         class="eligible">
+
+        ✓ ELIGIBLE
+
+        <p style="font-size: 14px; font-weight: normal;">
+            All required eligibility criteria have been satisfied.
+        </p>
+
+    </div>
+
+
+    <div th:unless="${result.eligible}"
+         class="not-eligible">
+
+        ✗ NOT ELIGIBLE
+
+        <p style="font-size: 14px; font-weight: normal;">
+            One or more eligibility criteria have failed.
+        </p>
+
+    </div>
+
+
+    <br>
+    <div th:if="${result.eligible}">
+        <form th:action="@{/apply/{id}(id=${scheme.id})}" method="post">
+            <button type="submit">Apply for Scheme</button>
+        </form>
+    </div>
+
+
+    <a href="/dashboard">
+        <button>Back to Dashboard</button>
+    </a>
+
+</div>
+
+</body>
+
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Application Submitted</title>
+</head>
+<body>
+
+<h1>Application Submitted Successfully!</h1>
+
+<p>Your application has been submitted.</p>
+
+<p>
+    Application ID:
+    <span th:text="${application.id}"></span>
+</p>
+
+<p>
+    Status:
+    <span th:text="${application.applicationStatus}"></span>
+</p>
+
+<p>
+    Eligibility: ELIGIBLE
+</p>
+
+<a href="/dashboard">Back to Dashboard</a>
+
+</body>
+</html>
