@@ -711,6 +711,7 @@ public class WebController {
                         + " | eligibilityScore=" + savedApplication.getEligibilityScore());
 
         model.addAttribute("application", savedApplication);
+        model.addAttribute("applicationId", savedApplication.getId());
         model.addAttribute("applicationDocuments", applicationDocumentRepository.findByApplicationIdOrderByOptionalDocumentAscDocumentNameAsc(savedApplication.getId()));
         model.addAttribute("scheme", scheme);
         model.addAttribute("eligible", true);

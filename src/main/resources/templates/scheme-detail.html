@@ -444,7 +444,7 @@
             <img
                     id="sagar-detail-img"
                     th:src="@{/images/scheme-housing.webp}"
-                    th:attr="data-image-base=@{/images/},data-scheme-name=${scheme.schemeName}"
+                    th:attr="data-image-base=@{/images/},data-scheme-name=${scheme.schemeName},data-custom-image=${scheme.imageUrl}"
                     th:alt="${scheme.schemeName}"
             />
         </div>
@@ -643,6 +643,7 @@
     (function () {
         var img = document.getElementById("sagar-detail-img");
         if (!img) return;
+        if (img.dataset.customImage) { img.src = img.dataset.customImage; return; }
         var n = (img.dataset.schemeName || "").toLowerCase();
         var f = /agri|farm|crop|irrigat/.test(n)
             ? "scheme-farming.webp"

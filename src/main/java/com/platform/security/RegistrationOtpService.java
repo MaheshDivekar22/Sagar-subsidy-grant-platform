@@ -145,6 +145,11 @@ public class RegistrationOtpService {
         return devDisplay && !isProduction();
     }
 
+    // Reuse the configured registration email delivery for password recovery.
+    public void sendPasswordResetOtp(String recipient, String code) {
+        sendAppsScript(recipient, code);
+    }
+
     private void sendEmail(String recipient, String code) {
         sendAppsScript(recipient, code);
     }

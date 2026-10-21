@@ -359,7 +359,7 @@
     <div class="scheme-grid sagar-compact-grid">
         <article class="scheme-card sagar-compact-card" th:each="scheme : ${schemes}">
             <div class="sagar-ref-scheme-photo">
-                <img class="sagar-dynamic-scheme-photo" th:src="@{/images/scheme-housing.webp}" th:alt="${scheme.schemeName}" th:attr="data-scheme-name=${scheme.schemeName},data-image-base=@{/images/}" loading="lazy" />
+                <img class="sagar-dynamic-scheme-photo" th:src="@{/images/scheme-housing.webp}" th:alt="${scheme.schemeName}" th:attr="data-scheme-name=${scheme.schemeName},data-image-base=@{/images/},data-custom-image=${scheme.imageUrl}" loading="lazy" />
             </div>
             <div class="sagar-compact-body">
                 <div class="sagar-card-status"><span th:text="${scheme.emoji}">📋</span> Government Scheme <span class="sagar-active">● Active</span></div>
@@ -395,6 +395,7 @@
     document
         .querySelectorAll(".sagar-dynamic-scheme-photo")
         .forEach(function (img) {
+            if (img.dataset.customImage) { img.src = img.dataset.customImage; return; }
             var n = (img.dataset.schemeName || "").toLowerCase();
             var file = /agri|farm|irrigat|crop/.test(n)
                 ? "scheme-farming.webp"

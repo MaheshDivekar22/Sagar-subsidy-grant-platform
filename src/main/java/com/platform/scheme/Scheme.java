@@ -22,6 +22,12 @@ public class Scheme {
 
     private String targetBeneficiary;     // E.g. "Students aged 18–30 from low-income families"
 
+    @Column(length = 700)
+    private String imageUrl;
+
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+
     private String emoji;                 // UI icon: 🎓 🌾 🏠 💼 👴 ♿ 🔧
 
     // ── Core eligibility parameters ──

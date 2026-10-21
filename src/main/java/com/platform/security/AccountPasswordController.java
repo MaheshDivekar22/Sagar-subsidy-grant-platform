@@ -3,10 +3,6 @@ package com.platform.security;
 import com.platform.user.User;
 import com.platform.user.UserRepository;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -23,14 +19,13 @@ public class AccountPasswordController {
     private static final String STRONG = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9\\s])\\S{8,}$";
     private final UserRepository users;
     private final PasswordEncoder encoder;
-    private final ObjectProvider<JavaMailSender> senders;
+    private final RegistrationOtpService registrationOtpService;
     private final SecureRandom random = new SecureRandom();
 
-    @Value("${spring.mail.username:}") private String from;
 
     public AccountPasswordController(UserRepository users, PasswordEncoder encoder,
-                                     ObjectProvider<JavaMailSender> senders) {
-        this.users = users; this.encoder = encoder; this.senders = senders;
+                                     RegistrationOtpService registrationOtpService) {
+        this.users = users; this.encoder = encoder; this.registrationOtpService = registrationOtpService;
     }
 
     @GetMapping("/forgot-password")
@@ -59,27 +54,19 @@ public class AccountPasswordController {
             return forgot(model, session);
         }
         if (user.isPresent()) {
-            JavaMailSender sender = senders.getIfAvailable();
-            if (sender == null || from.isBlank()) {
-                model.addAttribute("error", "Password reset email is not configured. Please contact the administrator.");
+            String code = String.format("%06d", random.nextInt(1_000_000));
+            try {
+                registrationOtpService.sendPasswordResetOtp(normalized, code);
+            } catch (IllegalStateException ex) {
+                model.addAttribute("error", "Could not send reset code. Please try again later.");
                 return forgot(model, session);
             }
-            String code = String.format("%06d", random.nextInt(1_000_000));
             for (String key : new String[]{"email", "hash", "expiry", "tries", "verified"}) session.removeAttribute(PREFIX + key);
             session.setAttribute(PREFIX + "sent", now);
             session.setAttribute(PREFIX + "email", normalized);
             session.setAttribute(PREFIX + "hash", encoder.encode(code));
             session.setAttribute(PREFIX + "expiry", now + 300);
             session.setAttribute(PREFIX + "tries", 0);
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(from.trim()); message.setTo(normalized);
-            message.setSubject("SAGAR password reset code");
-            message.setText("Your password reset code is " + code + ". It expires in 5 minutes. Do not share it.");
-            try { sender.send(message); } catch (org.springframework.mail.MailException ex) {
-                clear(session);
-                model.addAttribute("error", "Could not send reset email. Please check mail configuration and try again.");
-                return forgot(model, session);
-            }
         }
         model.addAttribute("message", "Reset code sent to your registered email.");
         return forgot(model, session);

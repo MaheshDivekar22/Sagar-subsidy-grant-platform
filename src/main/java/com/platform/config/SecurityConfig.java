@@ -28,7 +28,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Public routes
                         .requestMatchers("/", "/register", "/login", "/officer-register", "/error",
-                                "/css/**", "/images/**",
+                                "/css/**", "/images/**", "/forgot-password", "/forgot-password/**",
                                 "/scheme/**", "/verify-otp", "/resend-otp", "/cancel-otp",
                                 "/verify-registration-otp", "/resend-registration-otp").permitAll()
 

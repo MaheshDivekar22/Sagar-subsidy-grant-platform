@@ -331,9 +331,6 @@
         .header-link:hover {
             background: #eff6ff;
         }
-        body {
-            padding-top: 118px;
-        }
         @media (max-width: 800px) {
             .portal-header {
                 height: auto;
@@ -346,9 +343,6 @@
             }
             .header-actions {
                 justify-content: flex-start;
-            }
-            body {
-                padding-top: 170px;
             }
         }
     </style>
@@ -504,7 +498,12 @@
             </div>
             <div class="item">
                 <div class="label">District</div>
-                <div class="value" th:text="${beneficiary != null and beneficiary.district != null ? beneficiary.district : 'N/A'}">N/A</div>
+                <div
+                        class="value"
+                        th:text="${beneficiary != null and beneficiary.district != null ? beneficiary.district : 'N/A'}"
+                >
+                    N/A
+                </div>
             </div>
             <div class="item">
                 <div class="label">Applied Scheme</div>

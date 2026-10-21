@@ -31,6 +31,7 @@ import java.util.Map;
 public class AdminController {
 
     @Autowired private SchemeService schemeService;
+    @Autowired private com.platform.config.CloudinaryStorageService cloudinaryStorageService;
     @Autowired private SubsidyApplicationRepository applicationRepository;
     @Autowired private UserRepository userRepository;
     @Autowired private DisbursementAnalyticsService analyticsService;
@@ -143,6 +144,7 @@ public class AdminController {
     @PostMapping("/schemes/save")
     public String saveScheme(@Valid @ModelAttribute("schemeForm") SchemeAdminForm form,
                              BindingResult result,
+                             @RequestParam(value = "schemeImage", required = false) org.springframework.web.multipart.MultipartFile schemeImage,
                              RedirectAttributes redirectAttributes,
                              Model model) {
         if (result.hasErrors()) {
@@ -151,6 +153,10 @@ public class AdminController {
 
         try {
             boolean creating = form.getId() == null;
+            // Upload before saving so an invalid image cannot leave a partially updated scheme.
+            if (schemeImage != null && !schemeImage.isEmpty()) {
+                form.setImageUrl(cloudinaryStorageService.uploadSchemeImage(schemeImage));
+            }
             Scheme saved = schemeService.createOrUpdateFromAdmin(form);
             auditLogService.record("SCHEME", saved.getId(), creating ? "SCHEME_CREATED" : "SCHEME_UPDATED",
                     null, saved.getSchemeName(), creating
@@ -159,8 +165,8 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("success", creating
                     ? "Scheme created successfully."
                     : "Scheme updated successfully.");
-        } catch (RuntimeException ex) {
-            redirectAttributes.addFlashAttribute("error", readableError(ex));
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage() == null ? "Scheme save failed." : ex.getMessage());
         }
         return "redirect:/admin/dashboard";
     }

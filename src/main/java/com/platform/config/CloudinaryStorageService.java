@@ -31,6 +31,25 @@ public class CloudinaryStorageService {
                 new Cloudinary(ObjectUtils.asMap("cloud_name", name, "api_key", key, "api_secret", secret, "secure", true));
     }
 
+    public String uploadSchemeImage(org.springframework.web.multipart.MultipartFile file) throws Exception {
+        if (cloudinary == null) throw new IllegalStateException("Cloudinary credentials are missing.");
+        if (file == null || file.isEmpty()) throw new IllegalArgumentException("Select an image to upload.");
+        if (file.getSize() > 5L * 1024 * 1024) throw new IllegalArgumentException("Scheme image must be 5 MB or smaller.");
+        String type = file.getContentType();
+        if (type == null || !(type.equals("image/jpeg") || type.equals("image/png") || type.equals("image/webp")))
+            throw new IllegalArgumentException("Only JPEG, PNG and WebP images are supported.");
+        byte[] bytes = file.getBytes();
+        boolean valid = (bytes.length > 3 && (bytes[0] & 255) == 255 && (bytes[1] & 255) == 216 && (bytes[2] & 255) == 255)
+                || (bytes.length > 8 && bytes[0] == (byte)137 && bytes[1] == 80 && bytes[2] == 78 && bytes[3] == 71)
+                || (bytes.length > 12 && bytes[0] == 82 && bytes[1] == 73 && bytes[2] == 70 && bytes[3] == 70 && bytes[8] == 87 && bytes[9] == 69 && bytes[10] == 66 && bytes[11] == 80);
+        if (!valid) throw new IllegalArgumentException("Invalid image file.");
+        Map<?, ?> result = cloudinary.uploader().upload(bytes, ObjectUtils.asMap(
+                "folder", "sagar/schemes", "resource_type", "image", "type", "upload"));
+        Object url = result.get("secure_url");
+        if (url == null) throw new IllegalStateException("Image upload did not return a URL.");
+        return url.toString();
+    }
+
     public void upload(Long applicationId, String filename, MultipartFile file, boolean compliance) throws Exception {
         if (cloudinary == null) throw new IllegalStateException("Cloudinary credentials are missing. Configure CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET.");
         if (file.getSize() > 10 * 1024 * 1024) throw new IllegalArgumentException("Maximum document size is 10 MB.");

@@ -18,6 +18,9 @@ public class SchemeAdminForm {
     private String schemeName;
 
     private String emoji;
+    private String imageUrl;
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 
     private String description;
     private String benefitSummary;
@@ -55,6 +58,7 @@ public class SchemeAdminForm {
         form.setId(scheme.getId());
         form.setSchemeName(scheme.getSchemeName());
         form.setEmoji(scheme.getEmoji());
+        form.setImageUrl(scheme.getImageUrl());
         form.setDescription(scheme.getDescription());
         form.setBenefitSummary(scheme.getBenefitSummary());
         form.setTargetBeneficiary(scheme.getTargetBeneficiary());

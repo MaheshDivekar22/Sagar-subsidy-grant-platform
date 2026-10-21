@@ -485,6 +485,15 @@
                 white-space: normal;
             }
         }
+        /* Keep the scheme editor usable on narrow phones. */
+        @media (max-width: 600px) {
+            .page, .panel, .card { min-width: 0; max-width: 100%; }
+            .field, .textarea, select, input[type="file"] { box-sizing: border-box; max-width: 100%; width: 100%; }
+            .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+            .actions .btn { max-width: 100%; white-space: normal; }
+            .form-grid { grid-template-columns: minmax(0, 1fr); }
+            table { display: block; overflow-x: auto; max-width: 100%; }
+        }
     </style>
     <style>
         /* SAGAR header navigation additions — scoped to avoid changing page layouts */
@@ -737,8 +746,16 @@
                         th:action="@{/admin/schemes/save}"
                         th:object="${schemeForm}"
                         method="post"
+                        enctype="multipart/form-data"
                 >
                     <input type="hidden" th:field="*{id}" />
+                    <div class="field-wrap" style="margin:12px 0">
+                        <label class="label" for="schemeImage">Scheme image (JPG, PNG or WebP, max 5 MB)</label>
+                        <input class="field" id="schemeImage" name="schemeImage" type="file" accept="image/jpeg,image/png,image/webp" />
+                        <p class="help">Optional. Leave blank to retain the current image. Images are stored in Cloudinary.</p>
+                        <img th:if="${schemeForm.imageUrl != null and !#strings.isEmpty(schemeForm.imageUrl)}"
+                             th:src="${schemeForm.imageUrl}" alt="Current scheme image" style="max-width:220px;width:100%;border-radius:10px;margin-top:8px" />
+                    </div>
                     <div class="form-grid">
                         <div class="field-wrap">
                             <label class="label">Scheme Name *</label>
