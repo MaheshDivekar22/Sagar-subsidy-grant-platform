@@ -865,7 +865,7 @@
     </div>
     <div class="head">
         <h2
-                th:text="${schemeFiltered ? 'Scheme Fund Analytics — ' + selectedSchemeName : 'Fund Utilization & Regional Analytics'}"
+                th:text="${schemeFiltered ? 'Scheme Fund Analytics - ' + selectedSchemeName : 'Fund Utilization & Regional Analytics'}"
         >
             Fund Utilization &amp; Regional Analytics
         </h2>
@@ -906,33 +906,7 @@
         >
             Error
         </div>
-        <form
-                method="post"
-                action="/milestone3/reminders/run"
-                th:if="${financeViewer}"
-                style="margin-top: 12px"
-        >
-            <input
-                    type="hidden"
-                    th:name="${_csrf.parameterName}"
-                    th:value="${_csrf.token}"
-            />
-            <button
-                    type="submit"
-                    style="
-              border: 1px solid #e2e8f0;
-              border-radius: 6px;
-              padding: 8px 12px;
-              background: #fff;
-              color: #000080;
-              font-size: 11px;
-              font-weight: 800;
-              cursor: pointer;
-            "
-            >
-                🔔 Run Compliance Reminder Check Now
-            </button>
-        </form>
+
     </div>
 
     <div class="stats">

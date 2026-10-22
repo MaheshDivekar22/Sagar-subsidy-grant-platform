@@ -1806,7 +1806,7 @@
                         Required document/compliance
                     </div>
                     <div
-                            th:if="${milestone.lastReminderType != null}"
+                            th:if="${milestone.lastReminderType != null and milestone.complianceRequested == true and milestone.status != null and (milestone.status.name() == 'PENDING' or milestone.status.name() == 'OVERDUE') and disbursementPlans[ledger.id].status.name() != 'ON_HOLD' and ledger.applicationStatus != null and ledger.applicationStatus.name() == 'FUND_DISBURSEMENT'}"
                             th:style="${milestone.lastReminderType == 'OVERDUE' ? 'margin-top:5px;padding:5px 7px;background:#FEF2F2;color:#B91C1C;border-radius:5px;font-size:10px;font-weight:800;' : 'margin-top:5px;padding:5px 7px;background:#FFF7ED;color:#9A3412;border-radius:5px;font-size:10px;font-weight:800;'}"
                             th:text="${milestone.lastReminderType == 'OVERDUE' ? '⚠ Document submission overdue' : '⏰ Document submission due within 3 days'}"
                     >
@@ -1832,6 +1832,19 @@
                             th:text="'Submitted: ' + ${milestone.complianceOriginalFilename}"
                     >
                         Submitted
+                    </div>
+                    <!-- Citizen-facing status for submitted compliance evidence. -->
+                    <div
+                            th:if="${milestone.status != null and milestone.status.name() == 'COMPLIANCE_SUBMITTED'}"
+                            style="margin-top:7px;padding:9px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:7px;color:#1e40af;font-size:11px;font-weight:800"
+                    >
+                        ✓ Document submitted — awaiting Finance verification. No further upload is needed unless Finance returns it for correction.
+                    </div>
+                    <div
+                            th:if="${milestone.status != null and (milestone.status.name() == 'PENDING' or milestone.status.name() == 'OVERDUE') and milestone.complianceRequested == true and milestone.complianceOriginalFilename != null and disbursementPlans[ledger.id].status.name() != 'ON_HOLD' and ledger.applicationStatus != null and ledger.applicationStatus.name() == 'FUND_DISBURSEMENT'}"
+                            style="margin-top:7px;padding:9px;background:#fff7ed;border:1px solid #fed7aa;border-radius:7px;color:#9a3412;font-size:11px;font-weight:800"
+                    >
+                        Finance needs a corrected or additional document. Use the upload form below to resubmit your evidence.
                     </div>
                     <div
                             th:if="${milestone.status != null and milestone.status.name() == 'COMPLIANCE_VERIFIED'}"
@@ -1930,7 +1943,7 @@
                     </div>
 
                     <div
-                            th:if="${milestone != null and milestone.complianceRequested == true and milestone.status != null and milestone.status.name() != 'RELEASED' and milestone.status.name() != 'COMPLIANCE_SUBMITTED' and milestone.status.name() != 'COMPLIANCE_VERIFIED'}"
+                            th:if="${milestone != null and milestone.complianceRequested == true and milestone.status != null and (milestone.status.name() == 'PENDING' or milestone.status.name() == 'OVERDUE') and disbursementPlans[ledger.id].status.name() != 'ON_HOLD' and ledger.applicationStatus != null and ledger.applicationStatus.name() == 'FUND_DISBURSEMENT'}"
                             style="
                   margin-top: 8px;
                   background: #fff7ed;

@@ -37,6 +37,7 @@ public class EligibilityService {
     @Autowired private ApplicationRemarkRepository remarkRepository;
     @Autowired private ApplicationDocumentRepository documentRepository;
     @Autowired private AuditLogService auditLogService;
+    @Autowired private com.platform.disbursement.DisbursementPlanService disbursementPlanService;
 
     /**
      * Calculates exactly the same score used by the live browser preview.
@@ -306,6 +307,7 @@ public class EligibilityService {
                 app.getApplicationStatus().name(), note);
     }
 
+    @org.springframework.transaction.annotation.Transactional
     public void financeApproverAction(Long appId, String action, String remarks, double sanctionAmount) {
         SubsidyApplication app = getApp(appId);
         if (app.getApplicationStatus() != ApplicationStatus.FINANCE_PENDING) {
@@ -347,6 +349,10 @@ public class EligibilityService {
             default -> throw new IllegalArgumentException("Invalid finance action: " + action);
         }
         applicationRepository.save(app);
+        if ("APPROVE".equals(normalizeAction(action))) {
+            // Generate the default schedule at sanction time; preserve any existing plan.
+            disbursementPlanService.getOrCreatePlan(app);
+        }
         addRemark(app, "FINANCE_PENDING", "FINANCE_APPROVER", action, note);
         String financeNewValue = app.getApplicationStatus().name();
         if ("APPROVE".equals(normalizeAction(action))) {

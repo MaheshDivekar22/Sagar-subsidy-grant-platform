@@ -749,7 +749,7 @@ public class WebController {
             model.addAttribute("info", "This application is not currently waiting for applicant re-verification.");
         }
         enrichApplicationDocumentState(app);
-        model.addAttribute("application", app);
+        model.addAttribute("resubmitApp", app);
         model.addAttribute("scheme", app.getScheme());
         model.addAttribute("requiredDocuments", DocumentKeyUtil.parse(app.getScheme().getRequiredDocuments()));
         model.addAttribute("optionalDocuments", DocumentKeyUtil.parse(app.getScheme().getOptionalDocuments()));

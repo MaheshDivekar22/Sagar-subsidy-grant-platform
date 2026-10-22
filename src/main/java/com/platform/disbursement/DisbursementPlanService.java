@@ -514,6 +514,9 @@ public class DisbursementPlanService {
     protected int processComplianceReminders() {
         LocalDateTime now=LocalDateTime.now(); LocalDate today=now.toLocalDate(); int created=0;
         for (DisbursementPlan plan:planRepository.findAll()) {
+            // Paused or rejected applications must never receive new compliance reminders or automatic releases.
+            if (plan.getStatus() == DisbursementPlanStatus.ON_HOLD || plan.isFundReviewFlagged()
+                    || plan.getApplication().getApplicationStatus() != ApplicationStatus.FUND_DISBURSEMENT) continue;
             boolean changed=false;
             // Iterate over a defensive snapshot. releaseMilestone(...) can change the
             // Hibernate-managed milestone collection while this reminder scan is running.
@@ -571,6 +574,17 @@ public class DisbursementPlanService {
         if (sender == null) return;
         LocalDateTime now = LocalDateTime.now();
         for (ComplianceReminder reminder : reminderRepository.findTop100ByEmailSentAtIsNullOrderBySentAtAsc()) {
+            DisbursementMilestone milestone = reminder.getMilestone();
+            DisbursementPlan plan = milestone.getPlan();
+            // An old queued email must not ask for documents after rejection, pause,
+            // successful submission, verification, or release.
+            if (plan.getStatus() == DisbursementPlanStatus.ON_HOLD || plan.isFundReviewFlagged()
+                    || plan.getApplication().getApplicationStatus() != ApplicationStatus.FUND_DISBURSEMENT
+                    || milestone.getStatus() == MilestoneStatus.RELEASED
+                    || milestone.getStatus() == MilestoneStatus.COMPLIANCE_SUBMITTED
+                    || milestone.getStatus() == MilestoneStatus.COMPLIANCE_VERIFIED
+                    || milestone.getComplianceOriginalFilename() != null
+                    || milestone.getComplianceUploadedAt() != null) continue;
             if (reminder.getEmailLastAttemptAt() != null
                     && reminder.getEmailLastAttemptAt().isAfter(now.minusMinutes(5))) continue;
             String recipient = reminder.getMilestone().getPlan().getApplication().getUser().getEmail();

@@ -13,7 +13,7 @@
             margin: 0;
             background: #f5f7fb;
             color: #0f172a;
-            font-family: Arial, sans-serif;
+            font-family: "Segoe UI", Arial, sans-serif;
         }
         .page {
             max-width: 1000px;
@@ -124,7 +124,7 @@
             font-weight: 700;
         }
 
-        /* Fixed SAGAR header, matching the portal branding used on login/register/officer pages */
+        /* Sticky SAGAR header, matching the portal branding used on login/register/officer pages */
         .universal-header {
             position: fixed !important;
             top: 0;
@@ -195,7 +195,7 @@
             border-color: #000080;
         }
         body {
-            padding-top: 92px !important;
+            padding-top: 0 !important;
         }
         .page {
             max-width: 1040px !important;
@@ -304,7 +304,7 @@
                 display: none;
             }
             body {
-                padding-top: 86px !important;
+                padding-top: 0 !important;
             }
         }
     </style>
@@ -381,7 +381,7 @@
         >
         <a
                 class="header-btn primary"
-                th:href="@{/application/{id}(id=${application.id})}"
+                th:href="@{/application/{id}(id=${resubmitApp.id})}"
         >View Application Details</a
         >
     </div>
@@ -394,7 +394,7 @@
                 <div class="eyebrow">
                     Applicant Re-application / Re-verification
                 </div>
-                <h1 th:text="${'Application SUB-' + application.id}">
+                <h1 th:text="${'Application SUB-' + resubmitApp.id}">
                     Application SUB-1
                 </h1>
                 <div class="application-meta">
@@ -404,12 +404,12 @@
                     <span>•</span>
                     <span
                             class="chip"
-                            th:text="${application.applicationStatus != null ? #strings.replace(application.applicationStatus.toString(), '_', ' ') : 'REJECTED'}"
+                            th:text="${resubmitApp.applicationStatus != null ? #strings.replace(resubmitApp.applicationStatus.toString(), '_', ' ') : 'REJECTED'}"
                     >STATUS</span
                     >
                     <span
                             class="chip attempt-chip"
-                            th:text="${'Rejection Attempts: ' + application.rejectionCount + ' / 3'}"
+                            th:text="${'Rejection Attempts: ' + resubmitApp.rejectionCount + ' / 3'}"
                     >Rejection Attempts: 1 / 3</span
                     >
                 </div>
@@ -440,7 +440,7 @@
         </div>
         <div
                 class="direct-reapply"
-                th:if="${(resubmitRequiredKeys == null or resubmitRequiredKeys.isEmpty()) and (application.applicationStatus == null or application.applicationStatus.toString() == 'REJECTED')}"
+                th:if="${(resubmitRequiredKeys == null or resubmitRequiredKeys.isEmpty()) and (resubmitApp.applicationStatus == null or resubmitApp.applicationStatus.toString() == 'REJECTED')}"
         >
             <strong>No document replacement was requested.</strong>
             The officer rejected this attempt directly. You can re-apply using
@@ -449,7 +449,7 @@
         </div>
         <p
                 class="note"
-                th:if="${(resubmitRequiredKeys == null or resubmitRequiredKeys.isEmpty()) and application.applicationStatus != null and application.applicationStatus.toString() != 'REJECTED'}"
+                th:if="${(resubmitRequiredKeys == null or resubmitRequiredKeys.isEmpty()) and resubmitApp.applicationStatus != null and resubmitApp.applicationStatus.toString() != 'REJECTED'}"
         >
             No individual document is currently marked for replacement. Upload is
             available only when an officer specifically requests a replacement
@@ -481,7 +481,7 @@
         <input
                 type="hidden"
                 name="submittedAppId"
-                th:value="${application.id}"
+                th:value="${resubmitApp.id}"
         />
         <input
                 type="hidden"
@@ -587,7 +587,7 @@
         <button
                 class="btn direct"
                 type="submit"
-                th:if="${(resubmitRequiredKeys == null or resubmitRequiredKeys.isEmpty()) and (application.applicationStatus == null or application.applicationStatus.toString() == 'REJECTED')}"
+                th:if="${(resubmitRequiredKeys == null or resubmitRequiredKeys.isEmpty()) and (resubmitApp.applicationStatus == null or resubmitApp.applicationStatus.toString() == 'REJECTED')}"
         >
             Re-apply Same Application →
         </button>
